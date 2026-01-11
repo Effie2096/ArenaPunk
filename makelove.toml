@@ -1,0 +1,15 @@
+name = "ArenaPunk"
+default_targets = ["win32", "win64", "appimage", "lovejs"]
+build_directory = "makelove-build"
+
+love_version = "12.0"
+
+love_files = [
+  "::git-ls-tree::",
+  "./prism/init.lua",
+  "./prism/engine/*",
+  "./prism/extra/*",
+  "./prism/spectrum/*",
+  "./prism/geometer/*",
+  "-*/.*",
+]

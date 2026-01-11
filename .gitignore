@@ -1,0 +1,10 @@
+.*
+
+!.gitignore
+!.gitmodules
+!.luarc.json
+!.vscode
+
+build/
+release/
+makelove-build/
