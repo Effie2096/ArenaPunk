@@ -40,6 +40,10 @@ end
 function GameLevelState:handleMessage(message)
    self.super.handleMessage(self, message)
 
+   if prism.messages.LoseMessage:is(message) then
+      self.manager:pop()
+      love.event.quit()
+   end
    -- Handle any messages sent to the level state from the level. LevelState
    -- handles a few built-in messages for you, like the decision you fill out
    -- here.

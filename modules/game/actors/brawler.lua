@@ -8,5 +8,6 @@ prism.registerActor("Brawler", function()
       prism.components.Mover({ "walk" }),
       prism.components.BrawlerController(),
       prism.components.Health(3),
+      prism.components.Attacker(1),
    })
 end)
