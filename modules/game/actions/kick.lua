@@ -1,3 +1,6 @@
+local Log = prism.components.Log
+local Name = prism.components.Name
+
 local KickTarget = prism.Target(prism.components.Collider):range(1):sensed()
 
 --- @class KickAction : Action
@@ -27,6 +30,21 @@ function Kick:perform(level, kicked)
 
    local damage = prism.actions.Damage(kicked, 1)
    level:tryPerform(damage)
+
+   local kickName = Name.lower(kicked)
+   local ownerName = Name.lower(self.owner)
+   local dealt = damage.dealt or 0
+
+   Log.addMessage(self.owner, "You kick the %s for %i damage!", kickName, dealt)
+   Log.addMessage(kicked, "The %s kicks you for %i damage!", ownerName, dealt)
+   Log.addMessageSensed(
+      level,
+      self,
+      "The %s kicks the %s for %i damage!",
+      ownerName,
+      kickName,
+      dealt
+   )
 end
 
 return Kick

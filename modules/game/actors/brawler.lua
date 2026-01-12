@@ -1,5 +1,6 @@
 prism.registerActor("Brawler", function()
    return prism.Actor.fromComponents({
+      prism.components.Name("Brawler"),
       prism.components.Position(),
       prism.components.Collider(),
       prism.components.Drawable({ index = "b", color = prism.Color4.RED }),

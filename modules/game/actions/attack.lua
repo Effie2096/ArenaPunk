@@ -1,3 +1,6 @@
+local Log = prism.components.Log
+local Name = prism.components.Name
+
 local AttackTarget = prism.Target(prism.components.Health):isActor():range(1)
 
 ---@class Attack : Action
@@ -12,6 +15,31 @@ function Attack:perform(level, attacked)
 
    local damage = prism.actions.Damage(attacked, attacker.damage)
    level:tryPerform(damage)
+
+   local attackName = Name.lower(attacked)
+   local ownerName = Name.lower(self.owner)
+   local dealt = damage.dealt or 0
+
+   Log.addMessage(
+      self.owner,
+      "You attack the %s for %i damage!",
+      attackName,
+      dealt
+   )
+   Log.addMessage(
+      attacked,
+      "The %s attacks you for %i damage!",
+      ownerName,
+      dealt
+   )
+   Log.addMessageSensed(
+      level,
+      self,
+      "The %s attacks the %s for %i damage!",
+      ownerName,
+      attackName,
+      dealt
+   )
 end
 
 return Attack
