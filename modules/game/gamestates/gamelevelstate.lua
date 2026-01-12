@@ -26,7 +26,11 @@ function GameLevelState:__new(display)
    builder:addActor(prism.actors.Player(), 12, 12)
 
    -- Add systems
-   builder:addSystems(prism.systems.SensesSystem(), prism.systems.SightSystem())
+   builder:addSystems(
+      prism.systems.SensesSystem(),
+      prism.systems.SightSystem(),
+      prism.systems.FallSystem()
+   )
 
    -- Initialize with the created level and display, the heavy lifting is done by
    -- the parent class.
