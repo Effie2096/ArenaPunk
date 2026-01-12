@@ -7,5 +7,6 @@ prism.registerActor("Brawler", function()
       prism.components.Sight({ range = 12, fov = true }),
       prism.components.Mover({ "walk" }),
       prism.components.BrawlerController(),
+      prism.components.Health(3),
    })
 end)
