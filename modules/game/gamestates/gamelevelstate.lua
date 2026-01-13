@@ -1,4 +1,5 @@
 local controls = require "controls"
+local levelgen = require("levelgen")
 
 --- @class GameLevelState : LevelState
 --- A custom game level state responsible for initializing the level map,
@@ -12,18 +13,19 @@ function GameLevelState:__new(display)
    -- Construct a simple test map using MapBuilder.
    -- In a complete game, you'd likely extract this logic to a separate module
    -- and pass in an existing player object between levels.
-   local builder = prism.LevelBuilder()
+   local seed = love.timer.getTime()
+   local builder = levelgen(prism.RNG(seed), prism.actors.Player(), 60, 30)
 
-   builder:rectangle("line", 0, 0, 32, 32, prism.cells.Wall)
-   -- Fill the interior with floor tiles
-   builder:rectangle("fill", 1, 1, 31, 31, prism.cells.Floor)
-   -- Add a small block of walls within the map
-   builder:rectangle("fill", 5, 5, 7, 7, prism.cells.Wall)
-   -- Add a pit area to the southeast
-   builder:rectangle("fill", 20, 20, 25, 25, prism.cells.Pit)
+   -- builder:rectangle("line", 0, 0, 32, 32, prism.cells.Wall)
+   -- -- Fill the interior with floor tiles
+   -- builder:rectangle("fill", 1, 1, 31, 31, prism.cells.Floor)
+   -- -- Add a small block of walls within the map
+   -- builder:rectangle("fill", 5, 5, 7, 7, prism.cells.Wall)
+   -- -- Add a pit area to the southeast
+   -- builder:rectangle("fill", 20, 20, 25, 25, prism.cells.Pit)
 
    -- Place the player character at a starting location
-   builder:addActor(prism.actors.Player(), 12, 12)
+   -- builder:addActor(prism.actors.Player(), 12, 12)
 
    -- Add systems
    builder:addSystems(

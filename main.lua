@@ -25,8 +25,21 @@ local manager = spectrum.StateManager()
 
 -- we put out levelstate on top here, but you could create a main menu
 --- @diagnostic disable-next-line
-function love.load()
-   manager:push(spectrum.gamestates.GameLevelState(display))
+function love.load(args)
+   if args[1] == "--debug" then
+      local levelgen = require("levelgen")
+      local builder = prism.LevelBuilder()
+      local seed = prism.RNG(love.timer.getTime())
+      local function generator()
+         levelgen(seed, prism.actors.Player(), 60, 30, builder)
+      end
+
+      manager:push(
+         spectrum.gamestates.MapGeneratorState(generator, builder, display)
+      )
+   else
+      manager:push(spectrum.gamestates.GameLevelState(display))
+   end
    manager:hook()
    spectrum.Input:hook()
 end
