@@ -6,7 +6,7 @@ local PARTITIONS = 3
 ---@param height integer
 ---@param builder? LevelBuilder
 return function(rng, player, width, height, builder)
-   builder = builder or prism.LevelBuilder(prism.cells.Pit)
+   builder = builder or prism.LevelBuilder()
 
    local nox, noy = rng:random(1, 10000), rng:random(1, 10000)
    for x = 1, width do
@@ -90,6 +90,25 @@ return function(rng, player, width, height, builder)
    end
 
    builder:pad(1, prism.cells.Wall)
+
+   --- @type Rectangle[]
+   local availableRooms = {}
+   for _, room in pairs(rooms) do
+      if room ~= startRoom then table.insert(availableRooms, room) end
+   end
+
+   local stairRoom = availableRooms[rng:random(1, #availableRooms)]
+   local corners = stairRoom:toCorners()
+   local randCorner = corners[rng:random(1, #corners)]
+
+   builder:addActor(prism.actors.Stairs(), randCorner.x, randCorner.y)
+
+   local chestRoom = availableRooms[rng:random(1, #availableRooms)]
+   local center = chestRoom:center():floor()
+   local chestdrops = require("modules.game.loot.chest")
+   local drops = prism.components.DropTable(chestdrops):getDrops(rng)
+
+   builder:addActor(prism.actors.Chest(drops), center:decompose())
 
    return builder
 end

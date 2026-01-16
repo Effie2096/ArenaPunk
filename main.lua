@@ -6,6 +6,10 @@ prism.loadModule("prism/geometer")
 prism.loadModule("prism/extra/sight")
 prism.loadModule("prism/extra/log")
 prism.loadModule("modules/game")
+prism.loadModule("prism/extra/inventory")
+prism.loadModule("prism/extra/droptable")
+
+local Game = require("game")
 
 -- Used by Geometer for new maps
 prism.defaultCell = prism.cells.Pit
@@ -27,18 +31,23 @@ local manager = spectrum.StateManager()
 --- @diagnostic disable-next-line
 function love.load(args)
    if args[1] == "--debug" then
-      local levelgen = require("levelgen")
       local builder = prism.LevelBuilder()
-      local seed = prism.RNG(love.timer.getTime())
       local function generator()
-         levelgen(seed, prism.actors.Player(), 60, 30, builder)
+         Game:generateNextFloor(prism.actors.Player(), builder)
       end
 
       manager:push(
          spectrum.gamestates.MapGeneratorState(generator, builder, display)
       )
    else
-      manager:push(spectrum.gamestates.GameLevelState(display))
+      local builder = Game:generateNextFloor(prism.actors.Player())
+      manager:push(
+         spectrum.gamestates.GameLevelState(
+            display,
+            builder,
+            Game:getLevelSeed()
+         )
+      )
    end
    manager:hook()
    spectrum.Input:hook()

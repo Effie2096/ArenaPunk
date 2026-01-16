@@ -1,31 +1,19 @@
 local controls = require "controls"
-local levelgen = require("levelgen")
+
+local Game = require("game")
 
 --- @class GameLevelState : LevelState
 --- A custom game level state responsible for initializing the level map,
 --- handling input, and drawing the state to the screen.
 ---
---- @overload fun(display: Display): GameLevelState
+--- @overload fun(display: Display, builder: LevelBuilder, seed: string): GameLevelState
 local GameLevelState = spectrum.gamestates.LevelState:extend "GameLevelState"
 
---- @param display Display
-function GameLevelState:__new(display)
-   -- Construct a simple test map using MapBuilder.
-   -- In a complete game, you'd likely extract this logic to a separate module
-   -- and pass in an existing player object between levels.
-   local seed = love.timer.getTime()
-   local builder = levelgen(prism.RNG(seed), prism.actors.Player(), 60, 30)
-
-   -- builder:rectangle("line", 0, 0, 32, 32, prism.cells.Wall)
-   -- -- Fill the interior with floor tiles
-   -- builder:rectangle("fill", 1, 1, 31, 31, prism.cells.Floor)
-   -- -- Add a small block of walls within the map
-   -- builder:rectangle("fill", 5, 5, 7, 7, prism.cells.Wall)
-   -- -- Add a pit area to the southeast
-   -- builder:rectangle("fill", 20, 20, 25, 25, prism.cells.Pit)
-
-   -- Place the player character at a starting location
-   -- builder:addActor(prism.actors.Player(), 12, 12)
+---@param display Display
+---@param builder LevelBuilder
+---@param seed string
+function GameLevelState:__new(display, builder, seed)
+   builder:addSeed(seed)
 
    -- Add systems
    builder:addSystems(
@@ -45,6 +33,18 @@ function GameLevelState:handleMessage(message)
    if prism.messages.LoseMessage:is(message) then
       self.manager:enter(spectrum.gamestates.GameOverState(self.display))
    end
+
+   if prism.messages.DescendMessage:is(message) then
+      --- @cast message DescendMessage
+      self.manager:enter(
+         spectrum.gamestates.GameLevelState(
+            self.display,
+            Game:generateNextFloor(message.descender),
+            Game:getLevelSeed()
+         )
+      )
+   end
+
    -- Handle any messages sent to the level state from the level. LevelState
    -- handles a few built-in messages for you, like the decision you fill out
    -- here.
@@ -61,11 +61,26 @@ function GameLevelState:updateDecision(dt, owner, decision)
    -- Controls are accessed directly via table index.
    if controls.move.pressed then
       local destination = owner:getPosition() + controls.move.vector
+
+      local descendTarget = self.level
+         :query(prism.components.Stairs)
+         :at(destination:decompose())
+         :first()
+      local descend = prism.actions.Descend(owner, descendTarget)
+      if self:setAction(descend) then return end
+
       local move = prism.actions.Move(owner, destination)
       if self:setAction(move) then return end
 
-      local target = self.level:query():at(destination:decompose()):first()
+      local openable = self.level
+         :query(prism.components.Container)
+         :at(destination:decompose())
+         :first()
 
+      local openContainer = prism.actions.OpenContainer(owner, openable)
+      if self:setAction(openContainer) then return end
+
+      local target = self.level:query():at(destination:decompose()):first()
       local kick = prism.actions.Kick(owner, target)
       self:setAction(kick)
    end
@@ -100,6 +115,8 @@ function GameLevelState:draw()
    if health then
       self.display:print(1, 1, ("HP:%s/%s"):format(health.hp, health.maxHP))
    end
+
+   self.display:print(1, 2, ("Depth: %i"):format(Game.depth))
 
    local log = player:get(prism.components.Log)
    if log then

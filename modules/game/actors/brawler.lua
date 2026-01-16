@@ -1,3 +1,5 @@
+local Name = prism.components.Name
+
 prism.registerActor("Brawler", function()
    return prism.Actor.fromComponents({
       prism.components.Name("Brawler"),
@@ -10,5 +12,9 @@ prism.registerActor("Brawler", function()
       prism.components.BrawlerController(),
       prism.components.Health(3),
       prism.components.Attacker(1),
+      prism.components.DropTable({
+         chance = 0.3,
+         entry = Name.get(prism.actors.Stim()),
+      }),
    })
 end)
