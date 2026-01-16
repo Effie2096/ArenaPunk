@@ -16,6 +16,10 @@ return spectrum.Input.Controls {
       move_downright = { "c", "n" },
       wait           = "x",
 
+      inventory      = "tab",
+      back           = "backspace",
+      pickup         = "g",
+
       restart        = "r",
       quit           = "q",
    },

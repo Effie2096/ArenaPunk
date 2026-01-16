@@ -85,6 +85,29 @@ function GameLevelState:updateDecision(dt, owner, decision)
       self:setAction(kick)
    end
 
+   if controls.pickup.pressed then
+      local target = self.level
+         :query(prism.components.Item)
+         :at(owner:getPosition():decompose())
+         :first()
+
+      local pickup = prism.actions.Pickup(owner, target)
+      if self:setAction(pickup) then return end
+   end
+
+   if controls.inventory.pressed then
+      local inventory = owner:get(prism.components.Inventory)
+      if inventory then
+         local inventoryState = spectrum.gamestates.InventoryState(
+            self.display,
+            decision,
+            self.level,
+            inventory
+         )
+         self.manager:push(inventoryState)
+      end
+   end
+
    if controls.wait.pressed then self:setAction(prism.actions.Wait(owner)) end
 end
 
